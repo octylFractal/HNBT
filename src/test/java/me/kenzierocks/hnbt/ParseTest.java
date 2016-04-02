@@ -1,4 +1,4 @@
-package me.kenzierocks.xmlnbt;
+package me.kenzierocks.hnbt;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
