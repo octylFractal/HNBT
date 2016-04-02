@@ -1,14 +1,11 @@
 package me.kenzierocks.hnbt;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.*;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Map;
 
-import org.antlr.v4.runtime.ANTLRInputStream;
-import org.antlr.v4.runtime.CommonTokenStream;
 import org.jnbt.CompoundTag;
 import org.jnbt.IntTag;
 import org.jnbt.ListTag;
@@ -17,24 +14,17 @@ import org.jnbt.StringTag;
 import org.jnbt.Tag;
 import org.junit.Test;
 
-import me.kenzierocks.hnbt.grammar.HNBTLexer;
-import me.kenzierocks.hnbt.grammar.HNBTParser;
-
 public class ParseTest {
 
-    private static ANTLRInputStream getANTLRStream(String fileName)
-            throws IOException {
+    private static CompoundTag parseWithHnbtToNbt(String fileName)
+            throws IOException, HNBTParsingException {
         InputStream data = ParseTest.class.getResourceAsStream("/" + fileName);
-        return new ANTLRInputStream(data);
+        return HnbtToNbt.parseHnbtIntoNbt(data);
     }
 
     @Test
     public void simpleCompound() throws Exception {
-        ANTLRInputStream in = getANTLRStream("test.hnbt");
-        HNBTLexer lexer = new HNBTLexer(in);
-        CommonTokenStream tokens = new CommonTokenStream(lexer);
-        HNBTParser parser = new HNBTParser(tokens);
-        CompoundTag rootTag = parser.root().rootTag;
+        CompoundTag rootTag = parseWithHnbtToNbt("test.hnbt");
 
         assertEquals("root", rootTag.getName());
         Map<String, Tag> tags = rootTag.getValue();
@@ -67,6 +57,26 @@ public class ParseTest {
         assertNotNull(cut);
         assertEquals(ShortTag.class, cut.getClass());
         assertEquals(4, ((ShortTag) cut).getValue().shortValue());
+    }
+
+    @Test
+    public void badTokens() throws Exception {
+        try {
+            CompoundTag rootTag = parseWithHnbtToNbt("bad_tokens.hnbt");
+            fail("Parsed incorrectly into " + rootTag);
+        } catch (HNBTParsingException expected) {
+            // ok.
+        }
+    }
+
+    @Test
+    public void badSyntax() throws Exception {
+        try {
+            CompoundTag rootTag = parseWithHnbtToNbt("bad_syntax.hnbt");
+            fail("Parsed incorrectly into " + rootTag);
+        } catch (HNBTParsingException expected) {
+            // ok.
+        }
     }
 
 }
