@@ -52,6 +52,9 @@ public final class HnbtToNbt {
             }
             return tag;
         } catch (Exception e) {
+            if (e instanceof HNBTParsingException) {
+                throw e;
+            }
             HNBTParsingException ex = new HNBTParsingException(e);
             List<RecognitionException> errors = cap.getErrors();
             errors.forEach(ex::addSuppressed);
