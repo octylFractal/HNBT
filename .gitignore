@@ -1,0 +1,32 @@
+# package
+*.jar
+
+# eclipse
+.classpath
+.project
+.metadata/
+.settings/
+.recommenders/
+bin/
+
+# (no) idea
+.idea
+*.iml
+*.ipr
+*.iws
+out/
+
+# gradle
+.gradle/
+build/
+!/gradle/wrapper/gradle-wrapper.jar
+
+# custom
+.build/
+.test
+/.apt_generated/
+.factorypath
+/config/
+!/libs/JNBT_1.4.jar
+/src/main/generated/
+

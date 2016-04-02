@@ -1,0 +1,134 @@
+buildscript {
+    repositories {
+        mavenCentral()
+        maven {
+            url "https://oss.sonatype.org/content/repositories/snapshots/"
+        }
+        maven {
+            url "http://techshroom.github.io/downloads/maven"
+        }
+    }
+    
+    configurations.all {
+        resolutionStrategy {
+            cacheChangingModulesFor 0, 'seconds'
+        }
+    }
+    dependencies {
+        classpath group: 'com.techshroom', name: 'Aversion', version: '1.0.1-SNAPSHOT'
+    }
+}
+
+apply plugin: 'java'
+apply plugin: 'jacoco'
+apply plugin: 'eclipse'
+apply plugin: 'idea'
+apply plugin: 'aversion-util'
+apply plugin: 'aversion-maven'
+apply plugin: 'aversion-apt'
+apply plugin: 'antlr'
+
+compileJava {
+    options.incremental = true
+}
+
+ext.antlrSrcDir = '.antlr_generated'
+ext.antlrSrcDir2 = 'src/main/generated/antlr'
+sourceSets.main.java.srcDir antlrSrcDir2
+
+generateGrammarSource {
+    outputDirectory = file(antlrSrcDir)
+}
+
+// A bad hack because gradle sux with antlr
+tasks.getByPath('generateGrammarSource') << {
+    delete antlrSrcDir2 + '/me'
+    copy {
+        from antlrSrcDir
+        into antlrSrcDir2 + '/me/kenzierocks/hnbt/grammar'
+    }
+    delete antlrSrcDir
+}
+
+eclipse.classpath.file.withXml { provider ->
+    def ignoreOptCompileWarns = '''
+        <attributes>
+            <attribute name="ignore_optional_problems" value="true"/>
+            <attribute name="optional" value="true"/>
+        </attributes>
+    '''
+    ignoreOptCompileWarns = new XmlParser(false, true).parseText(ignoreOptCompileWarns)
+    provider.asNode().classpathentry.find { it.@path == antlrSrcDir }.children().add(0, ignoreOptCompileWarns)
+}
+eclipse.classpath {
+    minusConfigurations += [configurations.antlr]
+}
+
+util {
+    javaVersion = '1.8'
+}
+
+idea.project.languageLevel = util.javaVersion
+
+version = '0.0.1-SNAPSHOT'
+group = 'me.kenzierocks'
+
+repositories {
+    mavenCentral()
+    maven {
+        name "snapshots"
+        url "https://oss.sonatype.org/content/repositories/snapshots/"
+    }
+}
+configurations.all {
+   resolutionStrategy {
+     // fail eagerly on version conflict (includes transitive dependencies)
+     // e.g. multiple different versions of the same dependency (group and name are equal)
+     failOnVersionConflict()
+
+     // force certain versions of dependencies (including transitive)
+     force 'com.google.auto.service:auto-service:1.0-SNAPSHOT', 'com.google.guava:guava:18.0',
+           'com.google.dagger:dagger:2.0', 'com.google.auto:auto-common:0.4',
+           'com.google.auto.value:auto-value:1.3-SNAPSHOT',
+           'org.apache.httpcomponents:httpcore:4.3.3', 'org.apache.httpcomponents:httpclient:4.3.6',
+           'commons-codec:commons-codec:1.7', 'org.slf4j:slf4j-api:1.7.16',
+           'com.jcabi:jcabi-aspects:0.22', 'com.jcabi:jcabi-log:0.17'
+
+     cacheDynamicVersionsFor 10, 'minutes'
+     // don't cache changing modules at all
+     cacheChangingModulesFor 0, 'seconds'
+   }
+}
+ext.antlr = '4.5.3'
+dependencies {
+    compile files('libs/JNBT_1.4.jar')
+    compile group: 'com.jcabi', name: 'jcabi-xml', version: '0.17.2'
+    compile group: 'com.google.code.findbugs', name: 'jsr305', version: '3.0.1'
+
+    antlr group: 'org.antlr', name: 'antlr4', version: antlr
+    compile group: 'org.antlr', name: 'antlr4-runtime', version: antlr
+
+    addAPTReqWComp group: 'com.google.guava', name: 'guava', version: '18.0'
+    addAPT group: 'com.google.auto.value', name: 'auto-value', version: '1.3-SNAPSHOT'
+    addAPTReq name: 'aopalliance'
+    addAPTReq name: 'asm'
+    addAPTReq name: 'auto-value'
+    addAPTReq name: 'auto-common'
+    addAPTReq name: 'cglib'
+    addAPTReq name: 'commons-collections'
+    addAPTReq name: 'commons-lang'
+    addAPTReq name: 'dagger'
+    addAPTReq name: 'javawriter'
+    addAPTReq name: 'javax.inject'
+    addAPTReq name: 'velocity'
+
+    testCompile group: 'junit', name: 'junit', version: '4.+'
+}
+
+jacocoTestReport {
+    reports {
+        xml.enabled = true
+        html.enabled = true
+    }
+}
+check.dependsOn jacocoTestReport
