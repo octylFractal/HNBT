@@ -5,7 +5,10 @@ package me.kenzierocks.hnbt.grammar;
 }
 
 CompoundTagType : 'compound' ;
-RootName : 'root' ;
+RootName : 'root' -> mode(NORMAL) ;
+CWS : [ \r\t\n]+ ;
+
+mode NORMAL;
 
 STRING_ONELINE : '"' (~'"' | '\\"')* '"' ;
 OpenCompound : '{' ;
@@ -58,5 +61,4 @@ NameStartChar
    | '\uF900'..'\uFDCF'
    | '\uFDF0'..'\uFFFD'
    ;
-/** To aid in exploits */
 WS : [ \r\t\n]+;

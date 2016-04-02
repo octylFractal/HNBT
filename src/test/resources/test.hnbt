@@ -1,0 +1,8 @@
+compound root={
+ list foobar=[int=42],
+ string theQuestion="the question is not available in your country",
+ string special="not really \"special\"",
+ compound nested={
+    short cut=4
+ }
+}

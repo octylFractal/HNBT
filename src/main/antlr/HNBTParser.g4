@@ -17,7 +17,7 @@ import org.jnbt.*;
 }
 root
     returns [CompoundTag rootTag]
-    : WS? CompoundTagType WS RootName WS? TagToValue WS? tag=captureVal["compound","root"] WS? EOF {$rootTag = (CompoundTag) $tag.tag;} ;
+    : CWS? CompoundTagType CWS RootName CWS? TagToValue WS? tag=captureVal["compound","root"] WS? EOF {$rootTag = (CompoundTag) $tag.tag;} ;
 captureTag[boolean inCompound]
     returns [Tag tag]
     locals [String type,String name]
@@ -106,7 +106,7 @@ captureStringVal
     : str=STRING_ONELINE?
         {
         String v = $str.text;
-        $val = v.substring(1, v.length() - 1);
+        $val = v.substring(1, v.length() - 1).replace("\\\"", "\"");
         }
     ; // TODO MULTILINE STRINGS OR ADDITION ACROSS LINES OR SOMETHING
 
