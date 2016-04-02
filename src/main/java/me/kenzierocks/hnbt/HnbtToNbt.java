@@ -3,15 +3,21 @@ package me.kenzierocks.hnbt;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Reader;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.antlr.v4.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.CommonTokenStream;
-import org.antlr.v4.runtime.RecognitionException;
+import org.antlr.v4.runtime.tree.ErrorNode;
 import org.jnbt.CompoundTag;
+
+import com.google.common.base.Throwables;
 
 import me.kenzierocks.hnbt.grammar.HNBTLexer;
 import me.kenzierocks.hnbt.grammar.HNBTParser;
+import me.kenzierocks.hnbt.grammar.HNBTParserBaseListener;
 import me.kenzierocks.hnbt.util.CaptureErrorsListenener;
 
 public final class HnbtToNbt {
@@ -42,8 +48,19 @@ public final class HnbtToNbt {
         parser.removeErrorListeners();
         parser.addErrorListener(cap);
         try {
+            List<HNBTParsingException> errorNodeErrors = new ArrayList<>(1);
+            parser.addParseListener(new HNBTParserBaseListener() {
+
+                @Override
+                public void visitErrorNode(ErrorNode node) {
+                    errorNodeErrors.add(
+                            new HNBTParsingException("Error node " + node));
+                }
+            });
             CompoundTag tag = parser.root().rootTag;
-            List<RecognitionException> errors = cap.getErrors();
+            List<Exception> errors = Stream
+                    .concat(cap.getErrors().stream(), errorNodeErrors.stream())
+                    .collect(Collectors.toList());
             if (!errors.isEmpty()) {
                 HNBTParsingException ex =
                         new HNBTParsingException("Lexer errors occured");
@@ -55,10 +72,7 @@ public final class HnbtToNbt {
             if (e instanceof HNBTParsingException) {
                 throw e;
             }
-            HNBTParsingException ex = new HNBTParsingException(e);
-            List<RecognitionException> errors = cap.getErrors();
-            errors.forEach(ex::addSuppressed);
-            throw ex;
+            throw Throwables.propagate(e);
         }
     }
 
