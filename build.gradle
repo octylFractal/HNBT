@@ -61,7 +61,7 @@ eclipse.classpath.file.withXml { provider ->
         </attributes>
     '''
     ignoreOptCompileWarns = new XmlParser(false, true).parseText(ignoreOptCompileWarns)
-    provider.asNode().classpathentry.find { it.@path == antlrSrcDir }.children().add(0, ignoreOptCompileWarns)
+    provider.asNode().classpathentry.find { it.@path == antlrSrcDir2 }.children().add(0, ignoreOptCompileWarns)
 }
 eclipse.classpath {
     minusConfigurations += [configurations.antlr]
@@ -111,7 +111,7 @@ dependencies {
     compile group: 'org.antlr', name: 'antlr4-runtime', version: antlr
 
     addAPTReqWComp group: 'com.google.guava', name: 'guava', version: '18.0'
-    addAPT group: 'com.google.auto.value', name: 'auto-value', version: '1.3-SNAPSHOT'
+    addAPT group: 'com.google.auto.value', name: 'auto-value', version: '1.2'
     addAPTReq name: 'aopalliance'
     addAPTReq name: 'asm'
     addAPTReq name: 'auto-value'
