@@ -1,26 +1,25 @@
 language: java
-script: ./gradlew build -s
+script: "./gradlew build -s"
 jdk:
-  - oraclejdk8
-# Caching for Gradle files, prevents hitting Maven too much.
+- oraclejdk8
 before_cache:
-  - find $HOME/.gradle -name '*.lock' -print -exec rm -f {} \;
+- find $HOME/.gradle -name '*.lock' -print -exec rm -f {} \;
 cache:
   directories:
-    - $HOME/.gradle/caches/
-    - $HOME/.gradle/wrapper/
-
-# Faster builds without sudo.
+  - "$HOME/.gradle/caches/"
+  - "$HOME/.gradle/wrapper/"
 sudo: false
 addons:
   apt:
     packages:
-      - oracle-java8-installer
-# Code Coverage!
+    - oracle-java8-installer
 before_install:
-  - pip install --user codecov
+- pip install --user codecov
 after_success:
-  - codecov
+- codecov
+- "test $TRAVIS_PULL_REQUEST == false && test $TRAVIS_BRANCH == master && ./gradlew uploadArchives -PossrhUsername=kenzierocks"
 after_script:
-  # Make sure to kill daemon
-  - ./gradlew --stop
+- "./gradlew --stop"
+env:
+  matrix:
+    secure: OxtUDgh7CU631/NPkytddATJqy8/59qcwb2YwN3RRc1C1udzrlCHTZxlzeGMp0OBKwgrvRwQ0ymvQIeXzlxf1YrusJkyA2VUKNAAztzs4tUhYF0BLF6C06oC2DtyqBREAz+TIv9/UMgI7TrFJESeqTdorFbbBB9tDRnveD3ibE7T5N+EJCl7IckWIyM+0dAASXTODigo7MUikAaJPbyl083g/nn/whjvYnf+4f6v9/b3j5geS3zHOVqSNaNvah7K4xDeLV784kJPnVsC7OFiE2oabt9n5890VWzinEpsnAl2bHP/ejR+C1gMmoK6hNgQcXoEqMrMSUHlaoZHnBBp9xGXBCCmg0BesSQsAraGBMoT4PPltkJsLeZBzqSodVFtCuC6agbfuuoDcAFq7HrdPnE3kQy9m8XNYGrNcD2bhbg2Kit8lfmfzsaWbILwwA24Gm5jqn1S1FGFCJBPsrqUiNwwvyeUQPTacoRUWz9UgW8XwjkDfpb499SRKx/dtfZlQgVbQN1ejr+SwBhtaSBPIxjZOvSr2FcBV1DMAsHVFt7WOQ+4+szS0bj0iOTj6bSqxEw1tXuAN6KA27YJS+JvhgPU1FK1iThtftb5hEex1WxZmxybP/JkKfWvV/ueg2USHIN4M6cqf5eR76hl2hjx0q39U3Aq7EkdhMG4OF64aOI=

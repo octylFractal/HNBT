@@ -27,7 +27,6 @@ apply plugin: 'jacoco'
 apply plugin: 'eclipse'
 apply plugin: 'idea'
 apply plugin: 'aversion-util'
-apply plugin: 'aversion-maven'
 apply plugin: 'aversion-apt'
 apply plugin: 'antlr'
 
@@ -134,3 +133,59 @@ jacocoTestReport {
     }
 }
 check.dependsOn jacocoTestReport
+
+apply plugin: 'maven'
+
+// Release config
+afterReleaseBuild.dependsOn uploadArchives
+
+if (!project.property('ossrhPassword')) {
+    ext.ossrhPassword = System.getenv('PASSWORD');
+}
+
+if (project.property('ossrhUsername') && project.property('ossrhPassword')) {
+    println("[maven-auth] username:password=${project.ossrhUsername}:REDACTED")
+}
+
+ext.coord = '/kenzierocks/HNBT'
+uploadArchives {
+  repositories {
+    mavenDeployer {
+      repository(url: "https://oss.sonatype.org/service/local/staging/deploy/maven2/") {
+        authentication(userName: project.ossrhUsername, password: project.ossrhPassword)
+      }
+
+      snapshotRepository(url: "https://oss.sonatype.org/content/repositories/snapshots/") {
+        authentication(userName: project.ossrhUsername, password: project.ossrhPassword)
+      }
+
+      pom.project {
+        name project.name
+        packaging 'jar'
+        description 'Human NBT'
+        url 'https://github.com' + project.coord
+
+        scm {
+          connection 'git://github.com' + project.coord
+          developerConnection 'git://github.com' + project.coord
+          url 'https://github.com' + project.coord
+        }
+
+        licenses {
+          license {
+            name 'The MIT License'
+            url "https://github.com${project.coord}/blob/master/LICENSE"
+          }
+        }
+
+        developers {
+          developer {
+            id 'kenzierocks'
+            name 'Kenzie Togami'
+            email 'ket1999@gmail.com'
+          }
+        }
+      }
+    }
+  }
+}
