@@ -18,6 +18,9 @@ buildscript {
         classpath group: 'com.techshroom', name: 'Aversion', version: '1.0.1-SNAPSHOT'
     }
 }
+plugins {
+    id 'net.researchgate.release' version '2.3.5'
+}
 
 apply plugin: 'java'
 apply plugin: 'jacoco'
