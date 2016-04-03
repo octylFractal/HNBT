@@ -70,9 +70,9 @@ public final class StringUtil {
 
     public static char unescapeEscapeSequence(String escSeq) {
         checkArgument(escSeq.length() == 2,
-                "escape sequences are 2 characters long");
+                "escape sequences are 2 characters long: %s", escSeq);
         checkArgument(escSeq.charAt(0) == '\\',
-                "escape sequences begin with \\");
+                "escape sequences begin with \\: %s", escSeq);
         char after = escSeq.charAt(1);
         switch (after) {
             case 'b':
@@ -97,25 +97,26 @@ public final class StringUtil {
 
     public static char unescapeUnicodeEscape(String unicodeEsc) {
         checkArgument(unicodeEsc.charAt(0) == '\\',
-                "unicode escapes begin with \\");
-        int last4StartIndex = unicodeEsc.length() - 5;
+                "unicode escapes begin with \\: %s", unicodeEsc);
+        int last4StartIndex = unicodeEsc.length() - 4;
         checkArgument(
                 unicodeEsc.substring(1, last4StartIndex).codePoints()
                         .allMatch(x -> x == 'u'),
-                "unicode escapes must have u's after the \\");
+                "unicode escapes must have u's after the \\: %s", unicodeEsc);
         String charValue = unicodeEsc.substring(last4StartIndex);
         checkArgument(
                 charValue.codePoints()
                         .allMatch(x -> '0' <= x && x <= '9'
                                 || 'a' <= x && x <= 'f'
                                 || 'A' <= x && x <= 'F'),
-                "unicode escapes must be all hex digits after the \\u+");
+                "unicode escapes must be all hex digits after the \\u+: %s (digits: %s)",
+                unicodeEsc, charValue);
         return (char) Integer.parseInt(charValue, 16);
     }
 
     public static char unescapeOctalEscape(String octalEsc) {
         checkArgument(octalEsc.charAt(0) == '\\',
-                "octal escapes begin with \\");
+                "octal escapes begin with \\: %s", octalEsc);
         int length = octalEsc.length();
         checkArgument(length <= 4,
                 "octal escapes are 1-3 digits, got %s for %s", length,

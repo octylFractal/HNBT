@@ -18,7 +18,7 @@ CloseList : ']' ;
 ItemSep : ',' ;
 TagToValue : '=' ;
 
-TagType : 'compound'
+TagType : ('compound'
         | 'byte'
         | 'byte-array'
         | 'short'
@@ -29,14 +29,17 @@ TagType : 'compound'
         | 'double'
         | 'list'
         | 'string'
-        ;
+        ) -> mode(NAME);
 
 INTLIKEVAL : [1-9]? [0-9]+ ;
 FLOATLIKEVAL : INTLIKEVAL
              | (INTLIKEVAL | '0')? '.' [0-9]+ // 1.1, .1, 0.1
              ;
+WS : [ \r\t\n]+;
 
-TagName : NameStartChar NameChar* ; // all "printables" (excl. whitespace)
+mode NAME;
+NoName : '=' -> mode(NORMAL);
+TagName : NameStartChar NameChar* -> mode(NORMAL); // all "printables" (excl. whitespace)
 fragment
 NameChar
    : NameStartChar
@@ -62,4 +65,4 @@ NameStartChar
    | '\uF900'..'\uFDCF'
    | '\uFDF0'..'\uFFFD'
    ;
-WS : [ \r\t\n]+;
+NWS : [ \r\t\n]+;

@@ -59,6 +59,8 @@ final class HnbtSerializer {
         if (name != null) {
             ANTLRInputStream data = new ANTLRInputStream(name);
             HNBTLexer lexer = new HNBTLexer(data);
+            // Push into NAME so it pulls out tag names
+            lexer.mode(HNBTLexer.NAME);
             List<? extends Token> allTokens = lexer.getAllTokens();
             checkArgument(!allTokens.isEmpty(), "name is invalid: %s", name);
             checkArgument(allTokens.get(0).getType() == HNBTLexer.TagName,

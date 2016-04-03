@@ -24,9 +24,8 @@ captureTag[boolean inCompound]
     returns [Tag tag]
     locals [String type,String name]
     : WS? TagType {$type = $TagType.text;}
-                    // N.B. TagType is allowed b/c types may be names as well
-                    ({$inCompound}? WS nameCap=(TagType|TagName) {$name = $nameCap.text;} | {$name = "";})
-                                      WS? TagToValue WS? cap=captureVal[$type,$name] WS? {$tag = $cap.tag;} ;
+                    ({$inCompound}? NWS nameCap=TagName {$name = $nameCap.text;} | {$name = "";})
+                                      (NWS|WS)? (NoName|TagToValue) WS? cap=captureVal[$type,$name] WS? {$tag = $cap.tag;} ;
 
 captureVal[String type, String name]
     returns [Tag tag]
