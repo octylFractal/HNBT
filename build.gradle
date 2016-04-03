@@ -139,11 +139,11 @@ apply plugin: 'maven'
 // Release config
 afterReleaseBuild.dependsOn uploadArchives
 
-if (!project.property('ossrhPassword')) {
+if (!project.hasProperty('ossrhPassword')) {
     ext.ossrhPassword = System.getenv('PASSWORD');
 }
 
-if (project.property('ossrhUsername') && project.property('ossrhPassword')) {
+if (project.hasProperty('ossrhUsername') && project.hasProperty('ossrhPassword') && project.property('ossrhPassword')) {
     println("[maven-auth] username:password=${project.ossrhUsername}:REDACTED")
 }
 
