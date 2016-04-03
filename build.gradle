@@ -73,7 +73,6 @@ util {
 
 idea.project.languageLevel = util.javaVersion
 
-version = '0.0.1-SNAPSHOT'
 group = 'me.kenzierocks'
 
 repositories {
