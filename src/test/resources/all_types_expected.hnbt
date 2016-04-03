@@ -1,0 +1,15 @@
+compound root = {
+    list list = [],
+    byte byte = 127,
+    byte-array byte-array = [],
+    short short = 32767,
+    int int = 2147483647,
+    int-array int-array = [],
+    long long = 9223372036854775807,
+    float float = 42.0,
+    double double = 42.5,
+    string string = "\n to you too",
+    compound compound = {
+        string nested = "lvl up!"
+    }
+}

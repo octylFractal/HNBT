@@ -1,0 +1,3 @@
+compound root = {
+    string stringOne = "1"
+}

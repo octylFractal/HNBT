@@ -30,4 +30,8 @@ public class CaptureErrorsListenener extends BaseErrorListener {
         return ImmutableList.copyOf(this.errors);
     }
 
+    public void clearErrors() {
+        this.errors.clear();
+    }
+
 }

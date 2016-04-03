@@ -6,7 +6,9 @@ options {tokenVocab = HNBTLexer;}
 package me.kenzierocks.hnbt.grammar;
 
 import me.kenzierocks.hnbt.util.ByteList;
+import me.kenzierocks.hnbt.util.StringUtil;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -17,12 +19,13 @@ import org.jnbt.*;
 }
 root
     returns [CompoundTag rootTag]
-    : CWS? CompoundTagType CWS RootName CWS? TagToValue WS? tag=captureVal["compound","root"] WS? EOF {$rootTag = (CompoundTag) $tag.tag;} ;
+    : CWS? CompoundTagType CWS RootName WS? TagToValue WS? tag=captureVal["compound","root"] WS? EOF {$rootTag = (CompoundTag) $tag.tag;} ;
 captureTag[boolean inCompound]
     returns [Tag tag]
     locals [String type,String name]
     : WS? TagType {$type = $TagType.text;}
-                    ({$inCompound}? WS TagName {$name = $TagName.text;} | {$name = "";})
+                    // N.B. TagType is allowed b/c types may be names as well
+                    ({$inCompound}? WS nameCap=(TagType|TagName) {$name = $nameCap.text;} | {$name = "";})
                                       WS? TagToValue WS? cap=captureVal[$type,$name] WS? {$tag = $cap.tag;} ;
 
 captureVal[String type, String name]
@@ -63,9 +66,15 @@ captureList[String name]
     @after
     {
         Set<Class> classes = $tags.stream().map(Object::getClass).distinct().collect(Collectors.toSet());
-        if (classes.size() != 1) {
+        if (classes.size() > 1) {
             // TODO: add lineno info
             throw new IllegalStateException("Multiple types in list: " + classes);
+        }
+        if (classes.isEmpty()) {
+            if (!$tags.isEmpty()) {
+                throw new IllegalStateException("no classes in tags list...?");
+            }
+            classes = Collections.singleton(EndTag.class);
         }
         Class<? extends Tag> tagClass = (Class<? extends Tag>) classes.iterator().next();
         $tag = new ListTag($name, tagClass, $tags);
@@ -106,7 +115,7 @@ captureStringVal
     : str=STRING_ONELINE?
         {
         String v = $str.text;
-        $val = v.substring(1, v.length() - 1).replace("\\\"", "\"");
+        $val = StringUtil.unescapeString(v.substring(1, v.length() - 1));
         }
     ; // TODO MULTILINE STRINGS OR ADDITION ACROSS LINES OR SOMETHING
 
