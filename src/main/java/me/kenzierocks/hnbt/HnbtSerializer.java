@@ -1,15 +1,19 @@
 package me.kenzierocks.hnbt;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import java.io.IOException;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map.Entry;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import javax.annotation.Nullable;
 
+import org.antlr.v4.runtime.ANTLRInputStream;
+import org.antlr.v4.runtime.Token;
 import org.jnbt.ByteArrayTag;
 import org.jnbt.ByteTag;
 import org.jnbt.CompoundTag;
@@ -25,6 +29,7 @@ import org.jnbt.Tag;
 
 import com.google.common.base.Strings;
 
+import me.kenzierocks.hnbt.grammar.HNBTLexer;
 import me.kenzierocks.hnbt.util.IndentAddingAppendable;
 import me.kenzierocks.hnbt.util.StringUtil;
 
@@ -52,6 +57,12 @@ final class HnbtSerializer {
             throws IOException {
         this.target.append(type);
         if (name != null) {
+            ANTLRInputStream data = new ANTLRInputStream(name);
+            HNBTLexer lexer = new HNBTLexer(data);
+            List<? extends Token> allTokens = lexer.getAllTokens();
+            checkArgument(!allTokens.isEmpty(), "name is invalid: %s", name);
+            checkArgument(allTokens.get(0).getType() == HNBTLexer.TagName,
+                    "name is invalid: %s", name);
             this.target.append(' ').append(name);
         }
         this.target.append(" = ");
