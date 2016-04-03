@@ -31,7 +31,7 @@ TagType : ('compound'
         | 'string'
         ) -> mode(NAME);
 
-INTLIKEVAL : [1-9]? [0-9]+ ;
+INTLIKEVAL : '-'? [1-9]? [0-9]+ ;
 FLOATLIKEVAL : INTLIKEVAL
              | (INTLIKEVAL | '0')? '.' [0-9]+ // 1.1, .1, 0.1
              ;
