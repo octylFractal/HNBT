@@ -141,6 +141,7 @@ afterReleaseBuild.dependsOn uploadArchives
 
 if (!project.hasProperty('ossrhPassword')) {
     ext.ossrhPassword = System.getenv('PASSWORD');
+    println('Captured password from $PASSWORD')
 }
 
 // only sign on not-travis
