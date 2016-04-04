@@ -123,7 +123,7 @@ dependencies {
     addAPTReq name: 'javax.inject'
     addAPTReq name: 'velocity'
 
-    testCompile group: 'junit', name: 'junit', version: '4.+'
+    testCompile group: 'junit', name: 'junit', version: '4.12'
 }
 
 jacocoTestReport {
