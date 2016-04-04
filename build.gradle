@@ -143,6 +143,14 @@ if (!project.hasProperty('ossrhPassword')) {
     ext.ossrhPassword = System.getenv('PASSWORD');
 }
 
+// only sign on not-travis
+if (!Boolean.parseBoolean(System.getenv('TRAVIS'))) {
+    apply plugin: 'signing'
+    signing {
+        sign configurations.archives
+    }
+}
+
 task sourcesJar(type: Jar, dependsOn: classes) {
     classifier = 'sources'
     from sourceSets.main.allSource
