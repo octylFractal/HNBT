@@ -144,7 +144,8 @@ if (!project.hasProperty('ossrhPassword')) {
 }
 
 // only sign on not-travis
-if (!Boolean.parseBoolean(System.getenv('TRAVIS'))) {
+ext.doSigning = !Boolean.parseBoolean(System.getenv('TRAVIS'))
+if (doSigning) {
     apply plugin: 'signing'
     signing {
         sign configurations.archives
@@ -173,6 +174,9 @@ if (project.hasProperty('ossrhUsername') && project.hasProperty('ossrhPassword')
     uploadArchives {
       repositories {
         mavenDeployer {
+          if (doSigning) {
+            beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
+          }
           repository(url: "https://oss.sonatype.org/service/local/staging/deploy/maven2/") {
             authentication(userName: project.ossrhUsername, password: project.ossrhPassword)
           }
