@@ -14,12 +14,14 @@ addons:
     packages:
     - oracle-java8-installer
 before_install:
+- openssl aes-256-cbc -K $encrypted_92e08cd3ded6_key -iv $encrypted_92e08cd3ded6_iv
+  -in setup-travis.sh.enc -out setup-travis.sh -d
+- chmod +x setup-travis.sh
+- ./setup-travis.sh
 - pip install --user codecov
 after_success:
 - codecov
-- "test $TRAVIS_PULL_REQUEST == false && test $TRAVIS_BRANCH == master && ./gradlew uploadArchives -PossrhUsername=kenzierocks"
+- test $TRAVIS_PULL_REQUEST == false && test $TRAVIS_BRANCH == master && ./gradlew
+  uploadArchives -PossrhUsername=kenzierocks
 after_script:
 - "./gradlew --stop"
-env:
-  matrix:
-    secure: OxtUDgh7CU631/NPkytddATJqy8/59qcwb2YwN3RRc1C1udzrlCHTZxlzeGMp0OBKwgrvRwQ0ymvQIeXzlxf1YrusJkyA2VUKNAAztzs4tUhYF0BLF6C06oC2DtyqBREAz+TIv9/UMgI7TrFJESeqTdorFbbBB9tDRnveD3ibE7T5N+EJCl7IckWIyM+0dAASXTODigo7MUikAaJPbyl083g/nn/whjvYnf+4f6v9/b3j5geS3zHOVqSNaNvah7K4xDeLV784kJPnVsC7OFiE2oabt9n5890VWzinEpsnAl2bHP/ejR+C1gMmoK6hNgQcXoEqMrMSUHlaoZHnBBp9xGXBCCmg0BesSQsAraGBMoT4PPltkJsLeZBzqSodVFtCuC6agbfuuoDcAFq7HrdPnE3kQy9m8XNYGrNcD2bhbg2Kit8lfmfzsaWbILwwA24Gm5jqn1S1FGFCJBPsrqUiNwwvyeUQPTacoRUWz9UgW8XwjkDfpb499SRKx/dtfZlQgVbQN1ejr+SwBhtaSBPIxjZOvSr2FcBV1DMAsHVFt7WOQ+4+szS0bj0iOTj6bSqxEw1tXuAN6KA27YJS+JvhgPU1FK1iThtftb5hEex1WxZmxybP/JkKfWvV/ueg2USHIN4M6cqf5eR76hl2hjx0q39U3Aq7EkdhMG4OF64aOI=
