@@ -4,9 +4,6 @@ buildscript {
         maven {
             url "https://oss.sonatype.org/content/repositories/snapshots/"
         }
-        maven {
-            url "http://techshroom.github.io/downloads/maven"
-        }
     }
     
     configurations.all {
@@ -15,7 +12,7 @@ buildscript {
         }
     }
     dependencies {
-        classpath group: 'com.techshroom', name: 'Aversion', version: '1.0.1-SNAPSHOT'
+        classpath group: 'com.techshroom', name: 'Aversion', version: '2.0.0-SNAPSHOT'
     }
 }
 plugins {
@@ -27,6 +24,7 @@ apply plugin: 'jacoco'
 apply plugin: 'eclipse'
 apply plugin: 'idea'
 apply plugin: 'aversion-util'
+apply plugin: 'aversion-maven'
 apply plugin: 'aversion-apt'
 apply plugin: 'antlr'
 
@@ -73,6 +71,11 @@ util {
 idea.project.languageLevel = util.javaVersion
 
 group = 'me.kenzierocks'
+
+mavencfg {
+    description 'Human NBT'
+    coords 'kenzierocks', 'HNBT'
+}
 
 repositories {
     mavenCentral()
@@ -133,88 +136,3 @@ jacocoTestReport {
     }
 }
 check.dependsOn jacocoTestReport
-
-apply plugin: 'maven'
-
-// Release config
-afterReleaseBuild.dependsOn uploadArchives
-
-if (!project.hasProperty('ossrhPassword')) {
-    ext.ossrhPassword = System.getenv('PASSWORD');
-    println('Captured password from $PASSWORD')
-}
-
-// only sign on not-travis
-ext.doSigning = !Boolean.parseBoolean(System.getenv('TRAVIS'))
-if (doSigning) {
-    apply plugin: 'signing'
-    signing {
-        sign configurations.archives
-    }
-}
-
-task sourcesJar(type: Jar, dependsOn: classes) {
-    classifier = 'sources'
-    from sourceSets.main.allSource
-}
-
-task javadocJar(type: Jar, dependsOn: javadoc) {
-    classifier = 'javadoc'
-    from javadoc.destinationDir
-}
-
-artifacts {
-    archives sourcesJar
-    archives javadocJar
-}
-
-if (project.hasProperty('ossrhUsername') && project.hasProperty('ossrhPassword') && project.property('ossrhPassword')) {
-    println("[maven-auth] username:password=${project.ossrhUsername}:REDACTED")
-
-    ext.coord = '/kenzierocks/HNBT'
-    uploadArchives {
-      repositories {
-        mavenDeployer {
-          if (doSigning) {
-            beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
-          }
-          repository(url: "https://oss.sonatype.org/service/local/staging/deploy/maven2/") {
-            authentication(userName: project.ossrhUsername, password: project.ossrhPassword)
-          }
-
-          snapshotRepository(url: "https://oss.sonatype.org/content/repositories/snapshots/") {
-            authentication(userName: project.ossrhUsername, password: project.ossrhPassword)
-          }
-
-          pom.project {
-            name project.name
-            packaging 'jar'
-            description 'Human NBT'
-            url 'https://github.com' + project.coord
-
-            scm {
-              connection 'git://github.com' + project.coord
-              developerConnection 'git://github.com' + project.coord
-              url 'https://github.com' + project.coord
-            }
-
-            licenses {
-              license {
-                name 'The MIT License'
-                url "https://github.com${project.coord}/blob/master/LICENSE"
-              }
-            }
-
-            developers {
-              developer {
-                id 'kenzierocks'
-                name 'Kenzie Togami'
-                email 'ket1999@gmail.com'
-              }
-            }
-          }
-        }
-      }
-    }
-}
-
