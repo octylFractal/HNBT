@@ -140,6 +140,8 @@ task overwriteRealJar(dependsOn: shadowJar) {
     }
 }
 assemble.dependsOn(overwriteRealJar)
+uploadArchives.dependsOn(overwriteRealJar)
+install.dependsOn(overwriteRealJar)
 
 jacocoTestReport {
     reports {
