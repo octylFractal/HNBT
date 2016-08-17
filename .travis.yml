@@ -16,12 +16,10 @@ addons:
 before_install:
 - openssl aes-256-cbc -K $encrypted_92e08cd3ded6_key -iv $encrypted_92e08cd3ded6_iv
   -in setup-travis.sh.enc -out setup-travis.sh -d
-- chmod +x setup-travis.sh
-- ./setup-travis.sh
+- test $TRAVIS_SECURE_ENV_VARS == true && bash setup-travis.sh
 - pip install --user codecov
 after_success:
 - codecov
-- test $TRAVIS_PULL_REQUEST == false && test $TRAVIS_BRANCH == master && ./gradlew
-  uploadArchives -PossrhUsername=kenzierocks
+- test $TRAVIS_SECURE_ENV_VARS == true && ./gradlew uploadArchives -PossrhUsername=kenzierocks
 after_script:
 - "./gradlew --stop"

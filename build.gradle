@@ -5,18 +5,19 @@ buildscript {
             url "https://oss.sonatype.org/content/repositories/snapshots/"
         }
     }
-    
+
     configurations.all {
         resolutionStrategy {
             cacheChangingModulesFor 0, 'seconds'
         }
     }
     dependencies {
-        classpath group: 'com.techshroom', name: 'Aversion', version: '2.0.0-SNAPSHOT'
+        classpath group: 'com.techshroom', name: 'Aversion', version: '3.0.0'
     }
 }
 plugins {
-    id 'net.researchgate.release' version '2.3.5'
+    id 'net.researchgate.release' version '2.4.0'
+    id 'com.github.johnrengelman.shadow' version '1.2.3'
 }
 
 apply plugin: 'java'
@@ -103,9 +104,11 @@ configurations.all {
      cacheChangingModulesFor 0, 'seconds'
    }
 }
+configurations.create('flatDirLib')
+configurations.compile.extendsFrom(configurations.flatDirLib)
 ext.antlr = '4.5.3'
 dependencies {
-    compile files('libs/JNBT_1.4.jar')
+    flatDirLib files('libs/JNBT_1.4.jar')
     compile group: 'com.jcabi', name: 'jcabi-xml', version: '0.17.2'
     compile group: 'com.google.code.findbugs', name: 'jsr305', version: '3.0.1'
 
@@ -128,6 +131,15 @@ dependencies {
 
     testCompile group: 'junit', name: 'junit', version: '4.12'
 }
+shadowJar {
+    configurations = [project.configurations.flatDirLib]
+}
+task overwriteRealJar(dependsOn: shadowJar) {
+    doLast {
+        ant.move(file: shadowJar.archivePath, tofile: jar.archivePath)
+    }
+}
+assemble.dependsOn(overwriteRealJar)
 
 jacocoTestReport {
     reports {
